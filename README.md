@@ -29,6 +29,8 @@ Simple web server
 
 Simple movie database crud API
 No actual database -> in memory structs + slices
+No advanced routing
+
 External library: Gorilla Mux
 5 routes:
 
