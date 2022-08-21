@@ -1,6 +1,7 @@
 # Go Learning Project
 
 I've been wanting to learn some Go
+I initially had these as separate repositories, but decided to make them into a single monorepo after project 1 therefore I'm missing the commit history for poject 0 and 1.
 
 ## Resources
 
