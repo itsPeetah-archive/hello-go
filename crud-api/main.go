@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	// "encoding/json"
-	// "math/rand"
-	// "strconv"
+	"math/rand"
+	"strconv"
+
 	"github.com/gorilla/mux"
 )
 
@@ -22,6 +22,10 @@ type Movie struct {
 type Director struct {
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
+}
+
+type RequestError struct {
+	Message string `json:"message"`
 }
 
 var movies []Movie = make([]Movie, 0)
@@ -70,17 +74,25 @@ func getMovieById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	id := params["id"]
-	// success := false
 	for _, movie := range movies {
 		if movie.Id == id {
 			json.NewEncoder(w).Encode(movie)
 			return
 		}
 	}
+	json.NewEncoder(w).Encode(RequestError{
+		Message: fmt.Sprintf("No movie with id=%v exists in the database", id),
+	})
+
 }
 
 func addMovie(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Content-Type", "application/json")
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.Id = strconv.Itoa(rand.Intn(1000000000))
+	movies = append(movies, movie)
+	json.NewEncoder(w).Encode(movie)
 }
 
 func updateMovie(w http.ResponseWriter, r *http.Request) {
@@ -91,17 +103,11 @@ func deleteMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	id := params["id"]
-	// success := false
 	for index, movie := range movies {
 		if movie.Id == id {
 			movies = append(movies[:index], movies[index+1:]...) // Remove from slice using append
-			// success = true
-			return
+			return                                               // exit early
 		}
 	}
-	// if success {
-	// 	fmt.Fprintf(w, "Movie deleted")
-	// } else {
-	// 	fmt.Fprintf(w, "Movie did not exist")
-	// }
+	json.NewEncoder(w).Encode(movies)
 }
