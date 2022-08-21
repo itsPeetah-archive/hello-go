@@ -27,6 +27,11 @@ type RequestError struct {
 	Message string `json:"message"`
 }
 
+type RequestResult struct {
+	Error RequestError `json:"error"`
+	Data  []Movie      `json:"data"`
+}
+
 var movies []Movie = make([]Movie, 0)
 
 func main() {
@@ -40,7 +45,6 @@ func main() {
 			LastName:  "Doe",
 		},
 	})
-
 	movies = append(movies, Movie{
 		Id:    "2",
 		Isbn:  "1345674",
@@ -66,32 +70,45 @@ func main() {
 
 func getAllMovies(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(movies)
+	json.NewEncoder(w).Encode(RequestResult{
+		Data: movies,
+	})
+
+	// json.NewEncoder(w).Encode(movies)
 }
 
 func getMovieById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	id := params["id"]
+	var result RequestResult
+	success := false
 	for _, movie := range movies {
 		if movie.Id == id {
-			json.NewEncoder(w).Encode(movie)
-			return
+			success = true
+			result.Data = []Movie{movie}
+			break
 		}
 	}
-	json.NewEncoder(w).Encode(RequestError{
-		Message: fmt.Sprintf("No movie with id=%v exists in the database", id),
-	})
 
+	if !success {
+		result.Error.Message = fmt.Sprintf("No movie with id=%v exists in the database", id)
+	}
+
+	json.NewEncoder(w).Encode(result)
 }
 
 func addMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var result RequestResult
 	var movie Movie
 	_ = json.NewDecoder(r.Body).Decode(&movie)
 	movie.Id = strconv.Itoa(rand.Intn(1000000000))
 	movies = append(movies, movie)
-	json.NewEncoder(w).Encode(movie)
+
+	result.Data = []Movie{movie}
+
+	json.NewEncoder(w).Encode(result)
 }
 
 // this will just update the id and append it to the slice
@@ -99,6 +116,7 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	id := params["id"]
+	var result RequestResult
 	var wanted Movie
 	for index, movie := range movies {
 		if movie.Id == id {
@@ -110,18 +128,21 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 	wanted.Id = strconv.Itoa(rand.Intn(1000000000))
 	wanted.Title += " (Updated)"
 	movies = append(movies, wanted)
-	json.NewEncoder(w).Encode(wanted)
+	result.Data = []Movie{wanted}
+	json.NewEncoder(w).Encode(result)
 }
 
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	id := params["id"]
+	var result RequestResult
 	for index, movie := range movies {
 		if movie.Id == id {
 			movies = append(movies[:index], movies[index+1:]...) // Remove from slice using append
 			return                                               // exit early
 		}
 	}
-	json.NewEncoder(w).Encode(movies)
+	result.Data = movies
+	json.NewEncoder(w).Encode(result)
 }
