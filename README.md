@@ -25,7 +25,7 @@ Simple web server
 - "/hello": api-like handler function
 - "/form": handler function, improved with GET redirect
 
-## project 2: simple CRUD api
+## Project 2: simple CRUD api
 
 Simple movie database crud API
 No actual database -> in memory structs + slices
