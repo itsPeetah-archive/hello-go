@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-
 	"math/rand"
+	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -95,8 +94,23 @@ func addMovie(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movie)
 }
 
+// this will just update the id and append it to the slice
 func updateMovie(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	id := params["id"]
+	var wanted Movie
+	for index, movie := range movies {
+		if movie.Id == id {
+			wanted = movie
+			movies = append(movies[:index], movies[index+1:]...)
+			break
+		}
+	}
+	wanted.Id = strconv.Itoa(rand.Intn(1000000000))
+	wanted.Title += " (Updated)"
+	movies = append(movies, wanted)
+	json.NewEncoder(w).Encode(wanted)
 }
 
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
