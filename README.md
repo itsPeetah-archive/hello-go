@@ -24,3 +24,23 @@ Simple web server
 - "/": static file serve
 - "/hello": api-like handler function
 - "/form": handler function, improved with GET redirect
+
+## project 2: simple CRUD api
+
+Simple movie database crud API
+No actual database -> in memory structs + slices
+External library: Gorilla Mux
+5 routes:
+
+- get all (GET)
+- get by id (GET)
+- create (POST)
+- update (PUT)
+- delete (DELETE)
+
+2 endpoints:
+
+- "/movies"
+- "/movies/[id]
+
+Testable using Postman
