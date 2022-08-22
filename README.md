@@ -46,3 +46,13 @@ External library: Gorilla Mux
 - "/movies/[id]
 
 Testable using Postman
+
+## Project 3: email domain verifier
+
+Verifies whether an email domain is valid by looking up:
+
+- MX Records
+- SPF Records
+- DMARC Record
+
+This doesn't use external packages but makes use of the powerful "net" standard package
